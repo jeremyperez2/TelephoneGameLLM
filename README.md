@@ -1,7 +1,7 @@
 # When LLMs Play the Telephone Game: Cumulative Changes and Attractors in Iterated Cultural Transmissions
 ![introduction_figure](https://github.com/jeremyperez2/TelephoneGameLLM/assets/152488508/6ec97899-f8fd-48bd-a5da-d8fac458bfe8)
 
-This repo contains code for the paper [_"When LLMs Play the Telephone Game: Cumulative Changes and Attractors in Iterated Cultural Transmissions"_](https://sites.google.com/view/telephone-game-llm)
+This repo contains code for the paper [_"When LLMs Play the Telephone Game: Cumulative Changes and Attractors in Iterated Cultural Transmissions"_](https://arxiv.org/abs/2407.04503)
 
 The paper is also accompanied by a [website](https://sites.google.com/view/telephone-game-llm) that features a Data Explorer tool, allowing to look at the simulated data used in the paper. 
 
@@ -73,6 +73,21 @@ cd plots
 python3 plots/plot_all_figures.py
  ```
 Figures will be stored in Figures/figures_<current_date>
+
+
+
+## Cite as
+ ```
+@misc{perez2024llmsplaytelephonegame,
+      title={When LLMs Play the Telephone Game: Cumulative Changes and Attractors in Iterated Cultural Transmissions}, 
+      author={Jérémy Perez and Corentin Léger and Grgur Kovač and Cédric Colas and Gaia Molinaro and Maxime Derex and Pierre-Yves Oudeyer and Clément Moulin-Frier},
+      year={2024},
+      eprint={2407.04503},
+      archivePrefix={arXiv},
+      primaryClass={physics.soc-ph},
+      url={https://arxiv.org/abs/2407.04503}, 
+}
+ ```
 
 
 
