@@ -5,7 +5,7 @@ import re
 
 class Agent:
     def __init__(self, agent_id, network_structure, init_prompt, prompt_update, initial_story, personality, access_url, format_prompt = '', start_flag = None, end_flag = None,
-                 wait=0, string_sep='\n', debug=False, sequence = False, model = None, use_vllm = False, sampling_params=None):
+                 wait=0, string_sep='\n', debug=False, sequence = False, model = None, use_vllm = False, sampling_params=None, temperature = 0.8):
         self.agent_id = agent_id
         self.is_new = True
         self.neighbours = []
@@ -24,6 +24,7 @@ class Agent:
         self.prompt_format = format_prompt
         self.start_flag = start_flag
         self.end_flag = end_flag
+        
         if format_prompt != '':
             self.pattern = rf"{start_flag}(.*?){end_flag}"
         else:
@@ -33,6 +34,7 @@ class Agent:
         self.model = model
         self.use_vllm = use_vllm
         self.sampling_params = sampling_params
+        self.temperature = temperature
 
     def update_neighbours(self, graph, agentList):
         # get the neighbours of the agent from the graph (networkx graph)
@@ -108,7 +110,7 @@ class Agent:
         # if self.wait == 0 and self.go:
         if (self.wait == 0 and self.sequence) or (self.wait <= 0 and not(self.sequence)):
             while not format_ok:
-                self.story = get_answer(self.access_url, self.prompt, debug=self.debug, model=self.model, use_vllm=self.use_vllm, sampling_params=self.sampling_params)
+                self.story = get_answer(self.access_url, self.prompt, debug=self.debug, model=self.model, use_vllm=self.use_vllm, sampling_params=self.sampling_params, temperature=self.temperature)   
                 try:
                     if self.pattern != None:
                         test = re.search(self.pattern, self.story).group(1).strip()

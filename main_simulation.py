@@ -43,6 +43,7 @@ def parse_arguments():
     parser.add_argument('-vllm', '--use_vllm', default=True, help='Use VLLM model')
     parser.add_argument('-m', '--model', type=str, default='mistralai/Mistral-7B-Instruct-v0.1', help='VLLM model')
     parser.add_argument('-is', '--initial_story', type=str, default='Empty', help='Initial story')
+    parser.add_argument('-t', '--temperature', type=float, default=0.8, help='Temperature for token generation')
 
 
     return parser.parse_args()
@@ -177,7 +178,7 @@ def main(args=None):
                             prompt_update, initial_story, personality_list, n_agents, format_prompt=format_prompt,
                             start_flag=args.start_flag, end_flag=args.end_flag,
                             sequence=sequence, output_folder=args.output_dir,
-                            debug=debug, use_vllm=use_vllm, model=llm, sampling_params=sampling_params)
+                            debug=debug, use_vllm=use_vllm, model=llm, sampling_params=sampling_params, temperature=args.temperature)
         output_dict["stories"] = stories
 
         # Save the output to a file

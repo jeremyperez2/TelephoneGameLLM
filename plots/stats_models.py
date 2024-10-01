@@ -381,6 +381,7 @@ def plot_coeff_matrix(df, trace, name = 'Area', param = 'model'):
             # Calculate the mean and 95% credible interval
             mean_diff = np.mean(diff_samples)
             cred_interval = np.percentile(diff_samples, [2.5, 97.5])
+            credible_interval[i, j] = cred_interval
 
             differences[i, j] = mean_diff
 
@@ -417,7 +418,19 @@ def plot_coeff_matrix(df, trace, name = 'Area', param = 'model'):
     plt.title(f'{param.capitalize()} Coefficient Differences - {name.capitalize()}')
     plt.tight_layout()
     plt.colorbar()
-    return fig, ax
+
+
+    #plot credible intervals as table
+    fig2, ax2 = plt.subplots(figsize=(10, 10))
+    ax2.axis('off')
+    ax2.table(cellText=credible_interval.round(4), rowLabels=param_names, colLabels=param_names, loc='center', cellLoc='center')
+    plt.title(f'95% Credible Intervals - {name.capitalize()}')
+    plt.tight_layout()
+
+
+
+
+    return fig, ax, fig2, ax2
     
 
 import datetime
@@ -453,11 +466,11 @@ plotter = Plotter(all_data)
 
 # cumulativeness = get_cumulativeness(all_data, plotter)
 all_evolutions = get_all_evolutions(all_data, plotter)
-all_initial_cumuls, all_final_cumuls, all_after_10_cumuls = get_all_initial_vs_final(all_data, plotter)
+# all_initial_cumuls, all_final_cumuls, all_after_10_cumuls = get_all_initial_vs_final(all_data, plotter)
 all_attr_positions, all_attr_strengths, all_attr_positions_10, all_attr_strengths_10 = get_all_attr_positions_strengths(all_data, plotter)
-initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
-change_per_generation = get_change_per_generation(all_data, plotter)
-directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
+# initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
+# change_per_generation = get_change_per_generation(all_data, plotter)
+# directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
 
 os.makedirs(f"Results/{store_name}", exist_ok=True)    
 if save_data:
@@ -466,12 +479,12 @@ if save_data:
     with open(f"Results/{store_name}/all_evolutions.pkl", "wb") as file:
         pickle.dump(all_evolutions, file)
 
-    with open(f"Results/{store_name}/all_initial_cumuls.pkl", "wb") as file:
-        pickle.dump(all_initial_cumuls, file)
-    with open(f"Results/{store_name}/all_final_cumuls.pkl", "wb") as file:
-        pickle.dump(all_final_cumuls, file)
-    with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
-        pickle.dump(all_after_10_cumuls, file)
+    # with open(f"Results/{store_name}/all_initial_cumuls.pkl", "wb") as file:
+    #     pickle.dump(all_initial_cumuls, file)
+    # with open(f"Results/{store_name}/all_final_cumuls.pkl", "wb") as file:
+    #     pickle.dump(all_final_cumuls, file)
+    # with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
+    #     pickle.dump(all_after_10_cumuls, file)
 
     with open(f"Results/{store_name}/all_attr_positions.pkl", "wb") as file:
         pickle.dump(all_attr_positions, file)
@@ -479,24 +492,24 @@ if save_data:
         pickle.dump(all_attr_strengths, file)
     with open(f"Results/{store_name}/all_attr_positions_10.pkl", "wb") as file:
         pickle.dump(all_attr_positions_10, file)
-    with open(f"Results/{store_name}/all_attr_strengths_10.pkl", "wb") as file:
-        pickle.dump(all_attr_strengths_10, file)
+    # with open(f"Results/{store_name}/all_attr_strengths_10.pkl", "wb") as file:
+    #     pickle.dump(all_attr_strengths_10, file)
 
-    with open(f"Results/{store_name}/initial_sim.pkl", "wb") as file:
-        pickle.dump(initial_sim, file)
-    with open(f"Results/{store_name}/final_sim.pkl", "wb") as file:
-        pickle.dump(final_sim, file)
-    with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
-        pickle.dump(all_after_10_cumuls, file)
-    with open(f"Results/{store_name}/change_per_generation.pkl", "wb") as file:
-        pickle.dump(change_per_generation, file)
+    # with open(f"Results/{store_name}/initial_sim.pkl", "wb") as file:
+    #     pickle.dump(initial_sim, file)
+    # with open(f"Results/{store_name}/final_sim.pkl", "wb") as file:
+    #     pickle.dump(final_sim, file)
+    # with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
+    #     pickle.dump(all_after_10_cumuls, file)
+    # with open(f"Results/{store_name}/change_per_generation.pkl", "wb") as file:
+    #     pickle.dump(change_per_generation, file)
     
-    with open(f"Results/{store_name}/directional_change_per_generation.pkl", "wb") as file:
-        pickle.dump(directional_change_per_generation, file)
+    # with open(f"Results/{store_name}/directional_change_per_generation.pkl", "wb") as file:
+    #     pickle.dump(directional_change_per_generation, file)
     
 
 
-plotter.load_results(store_name)
+plotter.load_results(store_name, all = False)
 
 
 os.makedirs(f"Results/{saving_name}", exist_ok=True)
@@ -518,8 +531,9 @@ models, traces = run_bayesian_model(df, measures = ['strength'], variables = ['m
 for i,m in enumerate(['strength']):
     for v in variables:
 
-        fig, ax = plot_coeff_matrix(df, traces[i], name = f'\nAttractor {m}', param = v)
+        fig, ax,fig2, ax2 = plot_coeff_matrix(df, traces[i], name = f'\nAttractor {m}', param = v)
         fig.savefig(f"Results/{saving_name}/attractor_{m}_{v}.png")
+        fig2.savefig(f"Results/{saving_name}/attractor_{m}_{v}_table.png")
         
 
    
@@ -542,8 +556,9 @@ for measure in plotter.measures:
     for i,m in enumerate(['position']):
         for v in variables:
 
-            fig, ax = plot_coeff_matrix(df, traces[i], name = f'\nAttractor Position - {measure}', param = v)
+            fig, ax, fig2, ax2 = plot_coeff_matrix(df, traces[i], name = f'\nAttractor Position - {measure}', param = v)
             fig.savefig(f"Results/{saving_name}/attractor_{m}_{v}_{measure}.png")
+            fig2.savefig(f"Results/{saving_name}/attractor_{m}_{v}_{measure}_table.png")
 
 
 

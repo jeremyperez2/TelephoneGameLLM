@@ -6,7 +6,7 @@ import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def get_answer(access_url, prompt, debug=False, instruct = True, start_flag = None, use_vllm = True, model = None, sampling_params=None):
+def get_answer(access_url, prompt, debug=False, instruct = True, start_flag = None, use_vllm = True, model = None, sampling_params=None, temperature = 0.8):
     if use_vllm:
         from vllm import SamplingParams
 
@@ -24,7 +24,7 @@ def get_answer(access_url, prompt, debug=False, instruct = True, start_flag = No
         output = model.generate(
             [conversations],
             SamplingParams(
-                temperature=0.8,
+                temperature=temperature,
                 top_p=0.95,
                 max_tokens=None,
                 stop_token_ids=[tokenizer.eos_token_id, tokenizer.convert_tokens_to_ids("<|eot_id|>")],
@@ -61,7 +61,7 @@ def get_answer(access_url, prompt, debug=False, instruct = True, start_flag = No
         data = {
             "prompt": prompt,
             "max_tokens": 512,
-            "temperature": 0.8
+            "temperature": temperature
 
 
 

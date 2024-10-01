@@ -56,13 +56,28 @@ class Plotter():
                             "Meta-Llama-3-8B-Instruct": "Llama3-8B", 
                             "Mistral-7B-Instruct-v0.2": "Mistral7B", 
                             "Meta-Llama-3-70B-Instruct": "Llama3-70B",
-                            "Mixtral-8x7B-Instruct-v0.1": "Mixtral-8x7B"},
+                            "Meta-Llama-3-70B-Base": "Llama3-70B-Base",
+                            "Mixtral-8x7B-Instruct-v0.1": "Mixtral-8x7B",
+                            "Mixtral-8x7B-Base-v0.1": "Mixtral-8x7B-Base"},
                 model_colors={"initial": "#808080",
                             "gpt-3.5-turbo-0125": "#7aa16a", 
                             "Meta-Llama-3-8B-Instruct": "#004c97", 
                             "Mistral-7B-Instruct-v0.2": "#c04732",
                             "Meta-Llama-3-70B-Instruct": "#DA70D6",
-                            "Mixtral-8x7B-Instruct-v0.1": "#f0a632"},
+                            "Meta-Llama-3-70B-Base": "#DA70D6",
+                            "Meta-Llama-3-70B-": "#DA70D6",
+                            "Meta-Llama-3-70B": "#DA70D6",
+                            "Mixtral-8x7B-Instruct-v0.1": "#f0a632",
+                            "Mixtral-8x7B-Base-v0.1": "#f0a632",
+                            "Mixtral-8x7B--v0.1": "#f0a632",
+                            "Mixtral-8x7B-v0.1": "#f0a632"},
+                prompt_markers={"rephrase": "o",
+                            "inspiration": "x",
+                            "continue": "s"},
+
+                prompt_colors = {"rephrase": "#7aa16a",
+                                "inspiration": "#004c97",
+                                "continue": "#c04732"},
                 font_size=16):
         self.all_data = all_data
         self.saving_name = saving_name
@@ -85,65 +100,79 @@ class Plotter():
         # set up plotting style
         self.font_size = font_size
         self.model_colors = model_colors
+        self.prompt_markers = prompt_markers
+        self.prompt_colors = prompt_colors
         self._set_plot_params()
+
+        print(self.models)
     
-    def load_results(self, saving_name="gaia"):
+    def load_results(self, saving_name="gaia", all = True):
         
         
+        if all:
+            # load evolution results
+            with open(f"Results/{saving_name}/all_evolutions.pkl", "rb") as file:
+                all_evolutions = pickle.load(file)
+            self.all_evolutions = all_evolutions
 
-        # load evolution results
-        with open(f"Results/{saving_name}/all_evolutions.pkl", "rb") as file:
-            all_evolutions = pickle.load(file)
-        self.all_evolutions = all_evolutions
+            # # load cumulativeness results 
+            # with open(f"Results/{saving_name}/cumulativeness.pkl", "rb") as file:
+            #     cumulativeness = pickle.load(file)
+            # self.cumulativeness = cumulativeness
+    
+            # load initial vs final cumulativeness
+            with open(f"Results/{saving_name}/all_initial_cumuls.pkl", "rb") as file:
+                all_initial_cumuls = pickle.load(file)
+            with open(f"Results/{saving_name}/all_final_cumuls.pkl", "rb") as file:
+                all_final_cumuls = pickle.load(file)
+            self.all_initial_cumuls = all_initial_cumuls
+            self.all_final_cumuls = all_final_cumuls
 
-        # load cumulativeness results 
-        with open(f"Results/{saving_name}/cumulativeness.pkl", "rb") as file:
-            cumulativeness = pickle.load(file)
-        self.cumulativeness = cumulativeness
-  
-        # load initial vs final cumulativeness
-        with open(f"Results/{saving_name}/all_initial_cumuls.pkl", "rb") as file:
-            all_initial_cumuls = pickle.load(file)
-        with open(f"Results/{saving_name}/all_final_cumuls.pkl", "rb") as file:
-            all_final_cumuls = pickle.load(file)
-        self.all_initial_cumuls = all_initial_cumuls
-        self.all_final_cumuls = all_final_cumuls
+            # # load initial vs final similarities
+            # with open(f"Results/{saving_name}/initial_sim.pkl", "rb") as file:
+            #     initial_sim = pickle.load(file)
+            # with open(f"Results/{saving_name}/final_sim.pkl", "rb") as file:
+            #     final_sim = pickle.load(file)
+            # self.initial_sim = initial_sim
+            # self.final_sim = final_sim
 
-        # load initial vs final similarities
-        with open(f"Results/{saving_name}/initial_sim.pkl", "rb") as file:
-            initial_sim = pickle.load(file)
-        with open(f"Results/{saving_name}/final_sim.pkl", "rb") as file:
-            final_sim = pickle.load(file)
-        self.initial_sim = initial_sim
-        self.final_sim = final_sim
+            with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "rb") as file:
+                all_after_10_cumuls = pickle.load(file)
+            self.all_after_10_cumuls = all_after_10_cumuls
 
-        with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "rb") as file:
-            all_after_10_cumuls = pickle.load(file)
-        self.all_after_10_cumuls = all_after_10_cumuls
+            # with open(f"Results/{saving_name}/all_after_10_sim", "rb") as file:
 
-        # with open(f"Results/{saving_name}/all_after_10_sim", "rb") as file:
+            # load attractor positions and strengths
+            with open(f"Results/{saving_name}/all_attr_positions.pkl", "rb") as file:
+                all_attr_positions = pickle.load(file)
+            with open(f"Results/{saving_name}/all_attr_strengths.pkl", "rb") as file:
+                all_attr_strengths = pickle.load(file)
+            self.all_attr_positions = all_attr_positions
+            self.all_attr_strengths = all_attr_strengths
 
-        # load attractor positions and strengths
-        with open(f"Results/{saving_name}/all_attr_positions.pkl", "rb") as file:
-            all_attr_positions = pickle.load(file)
-        with open(f"Results/{saving_name}/all_attr_strengths.pkl", "rb") as file:
-            all_attr_strengths = pickle.load(file)
-        self.all_attr_positions = all_attr_positions
-        self.all_attr_strengths = all_attr_strengths
+            with open(f"Results/{saving_name}/all_attr_positions_10.pkl", "rb") as file:
+                all_attr_positions_10 = pickle.load(file)
+            with open(f"Results/{saving_name}/all_attr_strengths_10.pkl", "rb") as file:
+                all_attr_strengths_10 = pickle.load(file)
+            
+            # with open(f"Results/{saving_name}/change_per_generation.pkl", "rb") as file:
+            #     self.change_per_generation = pickle.load(file)
+            
+            # with open(f"Results/{saving_name}/directional_change_per_generation.pkl", "rb") as file:
+            #     self.directional_change_per_generation = pickle.load(file)
 
-        with open(f"Results/{saving_name}/all_attr_positions_10.pkl", "rb") as file:
-            all_attr_positions_10 = pickle.load(file)
-        with open(f"Results/{saving_name}/all_attr_strengths_10.pkl", "rb") as file:
-            all_attr_strengths_10 = pickle.load(file)
+            self.all_attr_positions_10 = all_attr_positions_10
+            self.all_attr_strengths_10 = all_attr_strengths_10
         
-        with open(f"Results/{saving_name}/change_per_generation.pkl", "rb") as file:
-            self.change_per_generation = pickle.load(file)
-        
-        with open(f"Results/{saving_name}/directional_change_per_generation.pkl", "rb") as file:
-            self.directional_change_per_generation = pickle.load(file)
+        else:
+            # load attractor positions and strengths
+            with open(f"Results/{saving_name}/all_attr_positions.pkl", "rb") as file:
+                all_attr_positions = pickle.load(file)
+            with open(f"Results/{saving_name}/all_attr_strengths.pkl", "rb") as file:
+                all_attr_strengths = pickle.load(file)
+            self.all_attr_positions = all_attr_positions
+            self.all_attr_strengths = all_attr_strengths
 
-        self.all_attr_positions_10 = all_attr_positions_10
-        self.all_attr_strengths_10 = all_attr_strengths_10
 
 
     def _set_plot_params(self):
@@ -173,12 +202,53 @@ class Plotter():
         self.fade = 0.4
 
     
-    def _get_model_handles(self, marker="_", markersize=6):
+    def _get_model_handles(self, marker="_", markersize=4, models = True, prompt=False, only_base=False, temperature = False, prompt_color = False):
         handles = []
-        for cidx, c in enumerate(self.models):
-            handles.append(mlines.Line2D([], [], c=self.model_colors[c], marker=marker, markersize=markersize,
-                                        markerfacecolor=self.model_colors[c], markeredgecolor=self.model_colors[c], ls="None", 
-                                        label=self.models[cidx]))
+        if models:
+            for cidx, c in enumerate(self.models):
+                if only_base:
+                    if "Base" in c:
+                        continue
+                    else:
+                        
+                        #remove 'Instruct' from model name
+                        label = c.replace("-Instruct", "")
+                else:
+                    if temperature:
+                            temp = c.split("_")[-1]
+                            label = c.replace(f"_{temp}", "")
+                    else:
+                        label = c
+                print(label)
+                handles.append(mlines.Line2D([], [], c=self.model_colors[label], marker=marker, markersize=markersize,
+                                            markerfacecolor=self.model_colors[label], markeredgecolor=self.model_colors[label], ls="None", 
+                                            label=label))
+        if prompt:
+            if prompt_color:
+
+                for cidx, c in enumerate(self.prompts):
+
+                    handles.append(mlines.Line2D([], [], c='k', marker=self.prompt_markers[c], markersize=markersize,
+                                                markerfacecolor=self.prompt_colors[c], markeredgecolor=self.prompt_colors[c], ls="None", markeredgewidth=6,
+                                                label=self.prompt_names[cidx]))
+            else:
+
+                for cidx, c in enumerate(self.prompts):
+
+                    handles.append(mlines.Line2D([], [], c='k', marker=self.prompt_markers[c], markersize=markersize,
+                                                markerfacecolor='k', markeredgecolor='k', ls="None", 
+                                                label=self.prompt_names[cidx]))
+
+
+            
+        return handles
+
+    def _get_prompt_handles(self, marker="_", markersize=6):
+        handles = []
+        for cidx, c in enumerate(self.prompts):
+            handles.append(mlines.Line2D([], [], c=self.prompt_colors[c], marker=marker, markersize=markersize,
+                                        markerfacecolor=self.prompt_colors[c], markeredgecolor=self.prompt_colors[c], ls="None", 
+                                        label=self.prompt_names[cidx]))
         return handles
 
 
@@ -724,6 +794,7 @@ class Plotter():
         if after10:
             final = self.all_after_10_cumuls[measure]
 
+        print(initial.keys())
         val_min = np.min([score[m][p] for m in self.models for p in self.prompts for score in [initial, final]])
         val_min_initial = np.min([initial[m][p] for m in self.models for p in self.prompts])
         val_min_final = np.min([final[m][p] for m in self.models for p in self.prompts])
@@ -1326,6 +1397,265 @@ class Plotter():
         
         
 
+    def compare_base_instruct(self, var, n_rows=1, w=6, h=4, ylim=(0, 1), legend_i=3, 
+                        legend_pos=(0.58, 0.7), models_first=False, with_suptitle=True, 
+                        fig=None, axs=None, after10 = False, ylabel = 'first', labelpad = 0, temperature = False):
+        
+        n_cols = len(self.measures)//n_rows
+
+        if var == "strength":
+            if after10:
+                values = self.all_attr_strengths_10
+            else:
+                values = self.all_attr_strengths
+        elif var == "position":
+            if after10:
+                values = self.all_attr_positions_10
+            else:
+                values = self.all_attr_positions
+
+        else:
+            print(f"Invalid variable {var}. Please choose between 'strength' and 'position'.")
+            return 
+
+        data = []
+
+        for m in self.models:
+            for p in self.prompts:
+                    for measure in self.measures:
+                        value = values[measure][m][p]
+                        if var == 'position':
+                            print(measure)
+                            if measure == 'toxicity' or measure == 'length' or measure == 'difficulty':
+                                print('here')
+                                print(value)
+                                value = np.max([value, 0])
+                                print
+                            if  measure == 'toxicity' or measure == 'positivity':
+                                value = np.min([value, 1])
+                            if measure == 'positivity':
+                                value = np.max([value, -1])
+                        if 'Instruct' in m:
+                            model = m.replace('Instruct', '')
+                            
+                            data.append({"model": model, "prompt": p, "measure": measure, "value": value, "type": 'Instruct'})
+                        else:
+                            model = m.replace('Base', '')
+                            data.append({"model": model, "prompt": p, "measure": measure, "value": value, "type": 'Base'})
+
+        df = pd.DataFrame(data)
+                
+        
+        
+
+        
+        
+        if axs is None:
+            fig, axs = plt.subplots(n_rows, n_cols, figsize=(w*n_cols, h*n_rows))
+                    
+        for i, (ax, measure) in enumerate(zip(axs.ravel(), self.measures)):
+            ## switch xticks
+            df['type'] = pd.Categorical(df['type'], categories=['Base', 'Instruct'], ordered=True)
+            
+            sns.lineplot(x='type', y='value', hue='model', data=df[df["measure"] == measure], ax=ax, palette = self.model_colors, markers= True, style = 'prompt', markersize=30, dashes=False, linewidth=8, markeredgecolor='black')
+
+            #alternatively, lineplot with markers with black outline
+
+            
+
+
+            ## Set xticks
+            # xticks = ['Instruct', 'Base']
+            # ax.set_xticks(range(len(xticks)), xticks, fontsize=12)  
+            if ylabel == 'first' and i % n_cols == 0:
+
+                ax.set_ylabel(f"Attractor {var.capitalize()}", fontsize=28, fontweight='bold', labelpad = labelpad)
+            else:
+                ax.set_ylabel("")
+
+            ax.set_xlabel("")
+
+            if var == 'strength':
+                ax.set_ylim(0, 1.1)
+
+            ## Increase yticks fontsize
+            ax.tick_params(axis='y', labelsize=24)
+
+            ## Increase xticks fontsize
+            ax.tick_params(axis='x', labelsize=24)
+
+            ## offset title
+            ax.title.set_position([.5, 1.2])
+
+
+            ##Increase figure height
+            fig.set_figheight(20)
+
+
+            # ax.set_title('Attractor ' + var.capitalize(), fontsize=12, fontweight='bold')
+
+
+
+            # if models_first: # compare across prompts
+            #     xticks = [p.capitalize() for m in self.models for p in self.prompts]
+            #     y = [values[measure][m][p] for m in self.models for p in self.prompts]
+            #     ax.bar(range(len(xticks)), y, color=[self.model_colors[m] for m in self.models for p in self.prompts])
+            #     ax.set_xticks(range(len(xticks)), xticks, rotation=45, ha="right")
+            # else: # prompts first, compare across models
+            #     
+            #     xlabels = [xtick for xi, xtick in enumerate(xticks) if xi in np.arange(self.n_models//2, self.n_models*len(self.prompts), self.n_models)]
+            #     y = [values[measure][m][p] for p in self.prompts for m in self.models ]
+            #     ax.bar(range(len(xticks)), y, color=[self.model_colors[m] for p in self.prompts for m in self.models ])
+            #     ax.set_xticks(np.arange(self.n_models//2, self.n_models*len(self.prompts), self.n_models), xlabels)
+            
+            
+            # ax.set_ylabel(f"Attractor {var}")
+            if with_suptitle:
+                ax.set_title(measure.capitalize(), fontweight='bold', fontsize=28, y=1.2)
+            ax.set_ylim(ylim)
+            if i == legend_i:
+                legend = ax.legend(handles=self._get_model_handles("s", prompt=True, only_base=True, markersize=12), bbox_to_anchor=legend_pos,
+                                    loc="lower center", fontsize=18, title=f"")
+            else:
+                ax.get_legend().remove()
+
+
+        fig.tight_layout()
+        return fig, axs
+    
+
+
+
+    def compare_temperature(self, var, n_rows=1, w=6, h=4, ylim=(0, 1), legend_i=3, 
+                        legend_pos=(0.58, 0.7), models_first=False, with_suptitle=True, 
+                        fig=None, axs=None, after10 = False, ylabel = 'first', labelpad = 0):
+        
+        n_cols = len(self.measures)//n_rows
+
+        if var == "strength":
+            if after10:
+                values = self.all_attr_strengths_10
+            else:
+                values = self.all_attr_strengths
+        elif var == "position":
+            if after10:
+                values = self.all_attr_positions_10
+            else:
+                values = self.all_attr_positions
+
+        else:
+            print(f"Invalid variable {var}. Please choose between 'strength' and 'position'.")
+            return 
+
+        data = []
+
+        for m in self.models:
+           
+            temperature = m.split('_')[-1]
+            model = m.replace(f'_{temperature}', '')
+            print(m)
+            temperature = float(temperature.replace('Temp', ''))
+            for p in self.prompts:
+                    for measure in self.measures:
+                        value = values[measure][m][p]
+                        if var == 'position':
+                            print(measure)
+                            if measure == 'toxicity' or measure == 'length' or measure == 'difficulty':
+                                print('here')
+                                print(value)
+                                value = np.max([value, 0])
+                                print
+                            if  measure == 'toxicity' or measure == 'positivity':
+                                value = np.min([value, 1])
+                            if measure == 'positivity':
+                                value = np.max([value, -1])
+                        
+                        data.append({"model": model, "prompt": p, "measure": measure, "value": value, "temperature": temperature})
+                        
+
+        df = pd.DataFrame(data)
+                
+        
+        
+
+        
+        
+        if axs is None:
+            fig, axs = plt.subplots(n_rows, n_cols, figsize=(w*n_cols, h*n_rows))
+                    
+        for i, (ax, measure) in enumerate(zip(axs.ravel(), self.measures)):
+            ## switch xticks
+            # df['type'] = pd.Categorical(df['type'], categories=['Base', 'Instruct'], ordered=True)
+            
+            sns.lineplot(x='temperature', y='value', hue='prompt', data=df[df["measure"] == measure], ax=ax, palette = self.prompt_colors, markers= True, style = 'prompt', markersize=30, dashes=False, linewidth=8, markeredgecolor='black')
+
+            #alternatively, lineplot with markers with black outline
+
+            
+
+
+            ## Set xticks
+            # xticks = ['Instruct', 'Base']
+            # ax.set_xticks(range(len(xticks)), xticks, fontsize=12)  
+            if ylabel == 'first' and i % n_cols == 0:
+
+                ax.set_ylabel(f"Attractor {var.capitalize()}", fontsize=28, fontweight='bold', labelpad = labelpad)
+            else:
+                ax.set_ylabel("")
+
+            ax.set_xlabel("Temperature", fontsize=24)
+
+            if var == 'strength':
+                ax.set_ylim(0, 1.1)
+
+            ## Increase yticks fontsize
+            ax.tick_params(axis='y', labelsize=24)
+
+            ## Increase xticks fontsize
+            ax.tick_params(axis='x', labelsize=24)
+
+           
+
+
+
+            ## offset title
+            ax.title.set_position([.5, 1.2])
+
+            
+            fig.set_figheight(20)
+
+
+
+            # ax.set_title('Attractor ' + var.capitalize(), fontsize=12, fontweight='bold')
+
+
+
+            # if models_first: # compare across prompts
+            #     xticks = [p.capitalize() for m in self.models for p in self.prompts]
+            #     y = [values[measure][m][p] for m in self.models for p in self.prompts]
+            #     ax.bar(range(len(xticks)), y, color=[self.model_colors[m] for m in self.models for p in self.prompts])
+            #     ax.set_xticks(range(len(xticks)), xticks, rotation=45, ha="right")
+            # else: # prompts first, compare across models
+            #     
+            #     xlabels = [xtick for xi, xtick in enumerate(xticks) if xi in np.arange(self.n_models//2, self.n_models*len(self.prompts), self.n_models)]
+            #     y = [values[measure][m][p] for p in self.prompts for m in self.models ]
+            #     ax.bar(range(len(xticks)), y, color=[self.model_colors[m] for p in self.prompts for m in self.models ])
+            #     ax.set_xticks(np.arange(self.n_models//2, self.n_models*len(self.prompts), self.n_models), xlabels)
+            
+            
+            # ax.set_ylabel(f"Attractor {var}")
+            if with_suptitle:
+                ax.set_title(measure.capitalize(), fontweight='bold', fontsize=28, y=1.2)
+            ax.set_ylim(ylim)
+            if i == legend_i:
+                legend = ax.legend(handles=self._get_model_handles("s", models=False, prompt=True, prompt_color = True, temperature=True, markersize=12), bbox_to_anchor=legend_pos,
+                                    loc="lower center", fontsize=18, title=f"")
+            else:
+                ax.get_legend().remove()
+
+
+        fig.tight_layout()
+        return fig, axs
     
 
 

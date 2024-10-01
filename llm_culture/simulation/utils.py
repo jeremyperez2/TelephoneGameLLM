@@ -5,7 +5,7 @@ from tqdm import trange
 
 
 def init_agents(n_agents, network_structure, prompt_init, prompt_update, initial_story, personality_list, access_url, format_prompt='', start_flag=None, end_flag=None,
-                sequence=False, debug=False, model = None, use_vllm = False, sampling_params=None):
+                sequence=False, debug=False, model = None, use_vllm = False, sampling_params=None, temperature = 0.8):
     agent_list = []
     wait = 0
 
@@ -14,7 +14,7 @@ def init_agents(n_agents, network_structure, prompt_init, prompt_update, initial
         agent = Agent(a, network_structure, prompt_init, prompt_update, initial_story, perso, 
                       access_url= access_url, format_prompt = format_prompt, 
                       start_flag= start_flag, end_flag=end_flag , wait=wait,
-                      debug=debug, sequence = sequence, model=model, use_vllm = use_vllm, sampling_params=sampling_params)
+                      debug=debug, sequence = sequence, model=model, use_vllm = use_vllm, sampling_params=sampling_params, temperature=temperature)
         agent_list.append(agent)
         if sequence:
             wait += 1
@@ -23,7 +23,8 @@ def init_agents(n_agents, network_structure, prompt_init, prompt_update, initial
 
 
 def run_simul(access_url, n_timesteps=5, network_structure=None, prompt_init=None, prompt_update=None, initial_story = '', personality_list=None, 
-              n_agents=5, format_prompt='', start_flag=None, end_flag=None, sequence=False, output_folder=None, debug=False, model = None, use_vllm = False, sampling_params=None):
+              n_agents=5, format_prompt='', start_flag=None, end_flag=None, sequence=False, output_folder=None, debug=False, model = None, use_vllm = False, sampling_params=None,
+              temperature = 0.8):
     #STRORAGE
     stories_history = []
 
@@ -31,7 +32,7 @@ def run_simul(access_url, n_timesteps=5, network_structure=None, prompt_init=Non
     agent_list = init_agents(n_agents, network_structure, prompt_init, 
                              prompt_update, initial_story, personality_list, access_url, format_prompt = format_prompt, 
                             start_flag= start_flag, end_flag=end_flag ,
-                             sequence=sequence, debug=debug, model=model, use_vllm = use_vllm, sampling_params=sampling_params)
+                             sequence=sequence, debug=debug, model=model, use_vllm = use_vllm, sampling_params=sampling_params, temperature=temperature)
     
 
 

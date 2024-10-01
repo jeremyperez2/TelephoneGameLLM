@@ -17,7 +17,7 @@ import os
 import pickle
 
 
-os.chdir("..")
+# os.chdir("..")
 
 
 ##############################################
@@ -159,21 +159,21 @@ def get_data_attractors(plotter):
 
 
 
-def get_initial_vs_final_sim(all_data, plotter):
-    initial_sim = {}
-    final_sim = {}
-    for m_i, m in zip(plotter.model_indices, plotter.models):
-        initial_sim[m] = {}
-        final_sim[m] = {}
-        for p in plotter.prompts:
-            initial_sim[m][p] = []
-            final_sim[m][p] = []
-            for ss_i in range(plotter.n_stories*plotter.n_seeds*(plotter.n_stories*plotter.n_seeds-1)):
-                initial_sim[m][p].append(np.squeeze(all_data["plot_convergence"][p]["all_similaritys"][m_i][ss_i][0]))
-                final_sim[m][p].append(np.squeeze(all_data["plot_convergence"][p]["all_similaritys"][m_i][ss_i][-1]))
-            initial_sim[m][p] = np.array(initial_sim[m][p])
-            final_sim[m][p] = np.array(final_sim[m][p])
-    return initial_sim, final_sim
+# def get_initial_vs_final_sim(all_data, plotter):
+#     initial_sim = {}
+#     final_sim = {}
+#     for m_i, m in zip(plotter.model_indices, plotter.models):
+#         initial_sim[m] = {}
+#         final_sim[m] = {}
+#         for p in plotter.prompts:
+#             initial_sim[m][p] = []
+#             final_sim[m][p] = []
+#             for ss_i in range(plotter.n_stories*plotter.n_seeds*(plotter.n_stories*plotter.n_seeds-1)):
+#                 initial_sim[m][p].append(np.squeeze(all_data["plot_convergence"][p]["all_similaritys"][m_i][ss_i][0]))
+#                 final_sim[m][p].append(np.squeeze(all_data["plot_convergence"][p]["all_similaritys"][m_i][ss_i][-1]))
+#             initial_sim[m][p] = np.array(initial_sim[m][p])
+#             final_sim[m][p] = np.array(final_sim[m][p])
+#     return initial_sim, final_sim
 
 def get_all_similarities(all_data, plotter):
     all_similarities = {}
@@ -201,7 +201,7 @@ print("Loading data ...")
 saving_name = "processed_data"
 
 
-with open("Results/data-for-plotting/all_data.pkl", "rb") as file:
+with open("../Results/data-for-plotting/all_data.pkl", "rb") as file:
     all_data = pickle.load(file)
 
 
@@ -210,9 +210,9 @@ plotter = Plotter(all_data)
 all_evolutions = get_all_evolutions(all_data, plotter)
 all_initial_cumuls, all_final_cumuls, all_after_10_cumuls = get_all_initial_vs_final(all_data, plotter)
 all_attr_positions, all_attr_strengths, all_attr_positions_10, all_attr_strengths_10 = get_all_attr_positions_strengths(all_data, plotter)
-initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
-change_per_generation = get_change_per_generation(all_data, plotter)
-directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
+# initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
+# change_per_generation = get_change_per_generation(all_data, plotter)
+# directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
 os.makedirs(f"Results/{saving_name}", exist_ok=True)    
 
 
@@ -235,17 +235,17 @@ with open(f"Results/{saving_name}/all_attr_positions_10.pkl", "wb") as file:
 with open(f"Results/{saving_name}/all_attr_strengths_10.pkl", "wb") as file:
     pickle.dump(all_attr_strengths_10, file)
 
-with open(f"Results/{saving_name}/initial_sim.pkl", "wb") as file:
-    pickle.dump(initial_sim, file)
-with open(f"Results/{saving_name}/final_sim.pkl", "wb") as file:
-    pickle.dump(final_sim, file)
-with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "wb") as file:
-    pickle.dump(all_after_10_cumuls, file)
-with open(f"Results/{saving_name}/change_per_generation.pkl", "wb") as file:
-    pickle.dump(change_per_generation, file)
+# with open(f"Results/{saving_name}/initial_sim.pkl", "wb") as file:
+#     pickle.dump(initial_sim, file)
+# with open(f"Results/{saving_name}/final_sim.pkl", "wb") as file:
+#     pickle.dump(final_sim, file)
+# with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "wb") as file:
+#     pickle.dump(all_after_10_cumuls, file)
+# with open(f"Results/{saving_name}/change_per_generation.pkl", "wb") as file:
+#     pickle.dump(change_per_generation, file)
 
-with open(f"Results/{saving_name}/directional_change_per_generation.pkl", "wb") as file:
-    pickle.dump(directional_change_per_generation, file)
+# with open(f"Results/{saving_name}/directional_change_per_generation.pkl", "wb") as file:
+#     pickle.dump(directional_change_per_generation, file)
 
 
 
@@ -313,15 +313,6 @@ _, _ = plotter.plot_attr_var("position", ylim=None, fig=fig, axs=axs[0,:], legen
 _, _ = plotter.plot_attr_var("strength", ylim=None, fig=fig, axs=axs[1,:], legend_i=None, with_suptitle=False, labelpad = 40)
 plt.savefig(f"Figures/{saving_name}/attractors_simple.pdf", bbox_inches="tight")
 
-
-#############################
-### FIGURES CONVERGENCE #####
-#############################
-
-print("Plotting convergence ...")
-
-plotter.plot_convergence(with_suptitle=False, mmpp=True, alpha=0.1)
-plt.savefig(f"Figures/{saving_name}/convergence.pdf", bbox_inches="tight")
 
 
 ##########################################

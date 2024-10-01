@@ -69,7 +69,8 @@ def plot_intitial_vs_final(folders, saving_name, stories, models, data = None):
                 cumulativeness = []
 
 
-                for init_story in stories:
+                for story_i, init_story in enumerate(stories):
+                    print(f"story: {story_i} / {len(stories)}")
                     sub_folder = model_folder + '/' + init_story
                     all_seeds_stories = get_stories(sub_folder)
                     intial_story = get_initial_story(sub_folder)
@@ -171,7 +172,6 @@ def plot_intitial_vs_final(folders, saving_name, stories, models, data = None):
         all_lengths = data['length']
     
     for i, model in enumerate(models):
-  
         toxicities = all_toxicities[i]
         positivities = all_positivities[i]
         difficulties = all_difficulties[i]
