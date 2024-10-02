@@ -166,9 +166,9 @@ class Plotter():
         
         else:
             # load attractor positions and strengths
-            with open(f"Results/{saving_name}/all_attr_positions.pkl", "rb") as file:
+            with open(f"../Results/{saving_name}/all_attr_positions.pkl", "rb") as file:
                 all_attr_positions = pickle.load(file)
-            with open(f"Results/{saving_name}/all_attr_strengths.pkl", "rb") as file:
+            with open(f"../Results/{saving_name}/all_attr_strengths.pkl", "rb") as file:
                 all_attr_strengths = pickle.load(file)
             self.all_attr_positions = all_attr_positions
             self.all_attr_strengths = all_attr_strengths

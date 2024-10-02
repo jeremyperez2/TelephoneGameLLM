@@ -6,7 +6,7 @@ from llm_culture.analysis.plot_attractors import plot_attractors
 from llm_culture.analysis.plot_convergence import plot_convergence
 from llm_culture.analysis.run_comparison_analysis import main_analysis
 from llm_culture.analysis.run_initial_vs_last_story import plot_intitial_vs_final
-
+import sys
 from tqdm import trange
 
 
@@ -63,17 +63,17 @@ def main(models, saving_name, prompts = ['rephrase', 'inspiration', 'continue'])
 
     for i in trange(len(prompts)):
         p = prompts[i]
-        # print(f"\n\nRunning evolution analysis for {p} ...")
-        # for j in trange(len(stories)):
-        #     s = stories[j]
+        print(f"\n\nRunning evolution analysis for {p} ...")
+        for j in trange(len(stories)):
+            s = stories[j]
         
-        #     sub_folders = [f"Results/{model}/{p}/{s}" for model in models]
+            sub_folders = [f"Results/{model}/{p}/{s}" for model in models]
 
-        #     if not False: #TODO replace with data_loaded 
-        #         all_data['evolution'][p][s] = main_analysis(sub_folders, plot = False, scale_y_axis = False, labels = models, sizes = sizes, saving_folder = f'{saving_name}/{p}/{s}')
-        #     else:
+            if not data_loaded:
+                all_data['evolution'][p][s] = main_analysis(sub_folders, plot = False, scale_y_axis = False, labels = models, sizes = sizes, saving_folder = f'{saving_name}/{p}/{s}')
+            else:
 
-        #         main_analysis(sub_folders, plot = False, scale_y_axis = False, labels = models, sizes = sizes, saving_folder = f'{saving_name}/{p}/{s}', all_data=all_data['evolution'][p][s])
+                main_analysis(sub_folders, plot = False, scale_y_axis = False, labels = models, sizes = sizes, saving_folder = f'{saving_name}/{p}/{s}', all_data=all_data['evolution'][p][s])
 
 
         sub_folders = [f"Results/{model}/{p}" for model in models]
@@ -98,13 +98,13 @@ def main(models, saving_name, prompts = ['rephrase', 'inspiration', 'continue'])
         plot_attractors(models, prompts, stories, saving_name, all_data['plot_attractors'])
     else:
         all_data['plot_attractors'] = plot_attractors(models, prompts, stories, saving_name)
-        # os.makedirs(f"Results/data-for-plotting/{saving_name}", exist_ok=True)
-        # with open(f"Results/data-for-plotting/all_data.pkl", 'wb') as f:
-        #     pickle.dump(all_data, f)
+        os.makedirs(f"Results/data-for-plotting/{saving_name}", exist_ok=True)
+        with open(f"Results/data-for-plotting/all_data.pkl", 'wb') as f:
+            pickle.dump(all_data, f)
     
-    os.makedirs(f"Results/data-for-plotting/{saving_name}", exist_ok=True)
-    with open(f"Results/data-for-plotting/all_data_temp.pkl", 'wb') as f:
-        pickle.dump(all_data, f)
+    # os.makedirs(f"Results/data-for-plotting/{saving_name}", exist_ok=True)
+    # with open(f"Results/data-for-plotting/all_data_temp.pkl", 'wb') as f:
+    #     pickle.dump(all_data, f)
     
 
 

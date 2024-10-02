@@ -20,13 +20,14 @@ def main_analysis(folders, plot = False, scale_y_axis = False, labels = None, si
     else:
         
         try:
-            with open(f"Results/Comparisons/{saving_folder}/dataa.pkl", 'rb') as f: ## TODO: change back to data.pkl
+            with open(f"Results/Comparisons/{saving_folder}/data.pkl", 'rb') as f:
                 data = pickle.load(f)
         except:
             data = {}
                 
             for i in trange(len(folders)):
                 folder = folders[i]
+                print(f"Running analysis for {folder} ...")
                 # Compute all the metric that will be used for plotting
                 all_seeds_stories = get_stories(folder)
                 intial_story = get_initial_story(folder)

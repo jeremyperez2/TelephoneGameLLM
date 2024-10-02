@@ -163,6 +163,11 @@ def plot_intitial_vs_final(folders, saving_name, stories, models, data = None):
         data['difficulty'] = all_difficulties
         data['length'] = all_lengths
 
+        print("Data loaded:")
+        print(f"toxicity: {np.array(all_toxicities).shape}")
+        print(f"positivity: {np.array(all_positivities).shape}")
+        print(f"difficulty: {np.array(all_difficulties).shape}")
+        print(f"length: {np.array(all_lengths).shape}")
             
 
     else:
@@ -170,6 +175,12 @@ def plot_intitial_vs_final(folders, saving_name, stories, models, data = None):
         all_positivities = data['positivity']
         all_difficulties = data['difficulty']
         all_lengths = data['length']
+
+        print("Data loaded:")
+        print(f"toxicity: {np.array(all_toxicities).shape}")
+        print(f"positivity: {np.array(all_positivities).shape}")
+        print(f"difficulty: {np.array(all_difficulties).shape}")
+        print(f"length: {np.array(all_lengths).shape}")
     
     for i, model in enumerate(models):
         toxicities = all_toxicities[i]

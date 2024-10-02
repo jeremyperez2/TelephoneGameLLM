@@ -10,6 +10,7 @@ import arviz as az
 import os
 import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
+import sys
 
 
 #####################################
@@ -120,6 +121,8 @@ def get_all_attr_positions_strengths(all_data, plotter):
         all_attr_positions_10[measure] = {}
         all_attr_strengths_10[measure] = {}
         for m in plotter.models:
+            print('test all_attr_positions')
+            print(m)
             all_attr_positions[measure][m] = {}
             all_attr_strengths[measure][m] = {}
             all_attr_positions_10[measure][m] = {}
@@ -345,7 +348,7 @@ def run_bayesian_model(df, variables = ['model', 'prompt', 'story' ], measures =
 ###################################################
 
 
-def plot_coeff_matrix(df, trace, name = 'Area', param = 'model'):
+def plot_coeff_matrix(df, trace, name = 'Area', param = 'model', saving_name = None):
 
     param_names = df[param].unique()
 
@@ -427,232 +430,275 @@ def plot_coeff_matrix(df, trace, name = 'Area', param = 'model'):
     plt.title(f'95% Credible Intervals - {name.capitalize()}')
     plt.tight_layout()
 
+    # ## generate latex code for the table
+    # latex = pd.DataFrame(credible_interval.round(4), index = param_names, columns = param_names).to_latex()
+    # ##save the latex code to a file
+    # if saving_name is not None:
+    #     with open(f"Results/{saving_name}/attractor_{name}_{param}_table.tex", "w") as file:
+    #         file.write(latex)
+
+    # ## the above code gives error: ValueError: Must pass 2-d input. shape=(2, 2, 2)
+    # ## the error is due to the fact that credible_interval is a 3D array, and the table function expects a 2D array
+    ## the following code is a workaround to plot the table in latex
+    ## Code:
+    with open(f"../Results/{saving_name}/attractor_{name.split(' ')[-1]}_{param}_table.tex", "w") as file:
+        file.write("\\begin{table}[h!]\n\centering\n\\begin{tabular}{|c|r|c|r|c|r|c|r|}\n") 
+        file.write("\\hline\n")
+        file.write(" & ")
+        for p in param_names:
+            file.write(f"{p} & ")
+        file.write("\\\\\n")
+        file.write("\\hline\n")
+        for i, p in enumerate(param_names):
+            file.write(f"{p} & ")
+            for j, p2 in enumerate(param_names):
+                file.write(f"[{credible_interval[i,j][0]:.4f} ; {credible_interval[i,j][1]:.4f}] & ")
+            file.write("\\\\\n")
+            file.write("\\hline\n")
+        file.write("\\end{tabular}")
+        file.write("\caption{95\% Credible Intervals for posterior differences between " + str(param) + " for" + name.capitalize() + "}\n")
+        file.write("\label{tab:" + name.capitalize()[1:] + '-' + str(param) + "}\n")
+        file.write("\end{table}")
+        
+
+
+
+
+
 
 
 
     return fig, ax, fig2, ax2
     
+def main(models):
+    import datetime
+    date = datetime.datetime.now()
+    saving_name = "StatModels" + str(date).replace(" ", "_").replace(":", "_").replace(".", "_") 
 
-import datetime
-date = datetime.datetime.now()
-saving_name = "StatModels" + str(date).replace(" ", "_").replace(":", "_").replace(".", "_") 
-
-save_data = True
-
-
-##################
-### LOAD DATA  ###
-##################
-
-os.chdir("..")
+    save_data = True
 
 
-with open("Results/data-for-plotting/all_data.pkl", "rb") as file:
-    all_data = pickle.load(file)
+    ##################
+    ### LOAD DATA  ###
+    ##################
+
+    # os.chdir("..")
 
 
+    with open("../Results/data-for-plotting/all_data.pkl", "rb") as file:
+        all_data = pickle.load(file)
 
-
-
-
-
-#####################
-### PROCESS DATA  ###
-#####################
-
-store_name = "processed_data"
-
-plotter = Plotter(all_data)
-
-# cumulativeness = get_cumulativeness(all_data, plotter)
-all_evolutions = get_all_evolutions(all_data, plotter)
-# all_initial_cumuls, all_final_cumuls, all_after_10_cumuls = get_all_initial_vs_final(all_data, plotter)
-all_attr_positions, all_attr_strengths, all_attr_positions_10, all_attr_strengths_10 = get_all_attr_positions_strengths(all_data, plotter)
-# initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
-# change_per_generation = get_change_per_generation(all_data, plotter)
-# directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
-
-os.makedirs(f"Results/{store_name}", exist_ok=True)    
-if save_data:
-    # with open(f"Results/{store_name}/cumulativeness.pkl", "wb") as file:
-    #     pickle.dump(cumulativeness, file)
-    with open(f"Results/{store_name}/all_evolutions.pkl", "wb") as file:
-        pickle.dump(all_evolutions, file)
-
-    # with open(f"Results/{store_name}/all_initial_cumuls.pkl", "wb") as file:
-    #     pickle.dump(all_initial_cumuls, file)
-    # with open(f"Results/{store_name}/all_final_cumuls.pkl", "wb") as file:
-    #     pickle.dump(all_final_cumuls, file)
-    # with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
-    #     pickle.dump(all_after_10_cumuls, file)
-
-    with open(f"Results/{store_name}/all_attr_positions.pkl", "wb") as file:
-        pickle.dump(all_attr_positions, file)
-    with open(f"Results/{store_name}/all_attr_strengths.pkl", "wb") as file:
-        pickle.dump(all_attr_strengths, file)
-    with open(f"Results/{store_name}/all_attr_positions_10.pkl", "wb") as file:
-        pickle.dump(all_attr_positions_10, file)
-    # with open(f"Results/{store_name}/all_attr_strengths_10.pkl", "wb") as file:
-    #     pickle.dump(all_attr_strengths_10, file)
-
-    # with open(f"Results/{store_name}/initial_sim.pkl", "wb") as file:
-    #     pickle.dump(initial_sim, file)
-    # with open(f"Results/{store_name}/final_sim.pkl", "wb") as file:
-    #     pickle.dump(final_sim, file)
-    # with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
-    #     pickle.dump(all_after_10_cumuls, file)
-    # with open(f"Results/{store_name}/change_per_generation.pkl", "wb") as file:
-    #     pickle.dump(change_per_generation, file)
-    
-    # with open(f"Results/{store_name}/directional_change_per_generation.pkl", "wb") as file:
-    #     pickle.dump(directional_change_per_generation, file)
-    
-
-
-plotter.load_results(store_name, all = False)
-
-
-os.makedirs(f"Results/{saving_name}", exist_ok=True)
+    ## see the keys of the dictionary
+    print(all_data.keys())
 
 
 
-#######################################################################################################
-### FIT STATISTICAL MODEL PREDICTING ATTRACTOR STRENGTH AS A FUNCTION OF MODEL, PROMPT, AND MEASURE ###
-#######################################################################################################
 
-df = get_data_attractors(plotter)
 
-df = pd.DataFrame(df)
 
-variables = ['model', 'prompt', 'measure']
 
-models, traces = run_bayesian_model(df, measures = ['strength'], variables = ['model', 'prompt', 'measure'])
+    #####################
+    ### PROCESS DATA  ###
+    #####################
 
-for i,m in enumerate(['strength']):
-    for v in variables:
+    store_name = "processed_data"
 
-        fig, ax,fig2, ax2 = plot_coeff_matrix(df, traces[i], name = f'\nAttractor {m}', param = v)
-        fig.savefig(f"Results/{saving_name}/attractor_{m}_{v}.png")
-        fig2.savefig(f"Results/{saving_name}/attractor_{m}_{v}_table.png")
+    plotter = Plotter(all_data, models = models)
+
+    # cumulativeness = get_cumulativeness(all_data, plotter)
+    all_evolutions = get_all_evolutions(all_data, plotter)
+    # all_initial_cumuls, all_final_cumuls, all_after_10_cumuls = get_all_initial_vs_final(all_data, plotter)
+    all_attr_positions, all_attr_strengths, all_attr_positions_10, all_attr_strengths_10 = get_all_attr_positions_strengths(all_data, plotter)
+    # initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
+    # change_per_generation = get_change_per_generation(all_data, plotter)
+    # directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
+
+    os.makedirs(f"../Results/{store_name}", exist_ok=True)    
+    if save_data:
+        # with open(f"Results/{store_name}/cumulativeness.pkl", "wb") as file:
+        #     pickle.dump(cumulativeness, file)
+        with open(f"../Results/{store_name}/all_evolutions.pkl", "wb") as file:
+            pickle.dump(all_evolutions, file)
+
+        # with open(f"Results/{store_name}/all_initial_cumuls.pkl", "wb") as file:
+        #     pickle.dump(all_initial_cumuls, file)
+        # with open(f"Results/{store_name}/all_final_cumuls.pkl", "wb") as file:
+        #     pickle.dump(all_final_cumuls, file)
+        # with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
+        #     pickle.dump(all_after_10_cumuls, file)
+
+        with open(f"../Results/{store_name}/all_attr_positions.pkl", "wb") as file:
+            pickle.dump(all_attr_positions, file)
+        with open(f"../Results/{store_name}/all_attr_strengths.pkl", "wb") as file:
+            pickle.dump(all_attr_strengths, file)
+        with open(f"../Results/{store_name}/all_attr_positions_10.pkl", "wb") as file:
+            pickle.dump(all_attr_positions_10, file)
+        # with open(f"Results/{store_name}/all_attr_strengths_10.pkl", "wb") as file:
+        #     pickle.dump(all_attr_strengths_10, file)
+
+        # with open(f"Results/{store_name}/initial_sim.pkl", "wb") as file:
+        #     pickle.dump(initial_sim, file)
+        # with open(f"Results/{store_name}/final_sim.pkl", "wb") as file:
+        #     pickle.dump(final_sim, file)
+        # with open(f"Results/{store_name}/all_after_10_cumuls.pkl", "wb") as file:
+        #     pickle.dump(all_after_10_cumuls, file)
+        # with open(f"Results/{store_name}/change_per_generation.pkl", "wb") as file:
+        #     pickle.dump(change_per_generation, file)
+        
+        # with open(f"Results/{store_name}/directional_change_per_generation.pkl", "wb") as file:
+        #     pickle.dump(directional_change_per_generation, file)
         
 
-   
+
+    plotter.load_results(store_name, all = False)
+
+
+    os.makedirs(f"../Results/{saving_name}", exist_ok=True)
 
 
 
-###############################################################################################################
-### FIT STATISTICAL MODEL PREDICTING ATTRACTOR POSITION AS A FUNCTION OF MODEL AND PROMPT, FOR EACH MEASURE ###
-###############################################################################################################
+    #######################################################################################################
+    ### FIT STATISTICAL MODEL PREDICTING ATTRACTOR STRENGTH AS A FUNCTION OF MODEL, PROMPT, AND MEASURE ###
+    #######################################################################################################
 
-df = get_data_attractors(plotter)
+    df = get_data_attractors(plotter)
 
-df = pd.DataFrame(df)
+    df = pd.DataFrame(df)
 
-variables = ['model', 'prompt']
+    variables = ['model', 'prompt', 'measure']
 
-for measure in plotter.measures:
-    models, traces = run_bayesian_model(df[df['measure'] == measure], measures = ['position'], variables = ['model', 'prompt'])
+    models, traces = run_bayesian_model(df, measures = ['strength'], variables = ['model', 'prompt', 'measure'])
 
-    for i,m in enumerate(['position']):
+    for i,m in enumerate(['strength']):
         for v in variables:
 
-            fig, ax, fig2, ax2 = plot_coeff_matrix(df, traces[i], name = f'\nAttractor Position - {measure}', param = v)
-            fig.savefig(f"Results/{saving_name}/attractor_{m}_{v}_{measure}.png")
-            fig2.savefig(f"Results/{saving_name}/attractor_{m}_{v}_{measure}_table.png")
+            fig, ax,fig2, ax2 = plot_coeff_matrix(df, traces[i], name = f'\nAttractor {m}', param = v, saving_name = saving_name)
+            fig.savefig(f"../Results/{saving_name}/attractor_{m}_{v}.png")
+            fig2.savefig(f"../Results/{saving_name}/attractor_{m}_{v}_table.png")
+            
+
+    
 
 
 
-# ###############################################################################################################
-# ### FIT STATISTICAL MODEL PREDICTING CUMULATIVENESS AS A FUNCTION OF MODEL, PROMPT AND  MEASURE ###
-# ###############################################################################################################
+    ###############################################################################################################
+    ### FIT STATISTICAL MODEL PREDICTING ATTRACTOR POSITION AS A FUNCTION OF MODEL AND PROMPT, FOR EACH MEASURE ###
+    ###############################################################################################################
 
-# df = get_data_initial_vs_final(plotter)
+    df = get_data_attractors(plotter)
 
-# df = pd.DataFrame(df)
+    df = pd.DataFrame(df)
 
-# variables = ['model', 'prompt', 'measure']
+    variables = ['model', 'prompt']
 
-# models, traces = run_bayesian_model(df, measures = ['normalized_difference'], variables = ['model', 'prompt', 'measure'])
+    for measure in plotter.measures:
+        models, traces = run_bayesian_model(df[df['measure'] == measure], measures = ['position'], variables = ['model', 'prompt'])
 
-# for i,m in enumerate(['normalized_difference']):
-#     for v in variables:
+        for i,m in enumerate(['position']):
+            for v in variables:
 
-#         fig, ax = plot_coeff_matrix(df, traces[i], name = f'Difference', param = v)
-#         fig.savefig(f"Results/{saving_name}/cumulativeness_{v}.png")
-        
-
-
+                fig, ax, fig2, ax2 = plot_coeff_matrix(df, traces[i], name = f'\nAttractor Position - {measure}', param = v, saving_name = saving_name)
+                fig.savefig(f"../Results/{saving_name}/attractor_{m}_{v}_{measure}.png")
+                fig2.savefig(f"../Results/{saving_name}/attractor_{m}_{v}_{measure}_table.png")
 
 
-####################################################################
-### Kolmogorov-Smirnov (KS) Test for comparing the distributions ###
-####################################################################
 
-from scipy.stats import ks_2samp
+    # ###############################################################################################################
+    # ### FIT STATISTICAL MODEL PREDICTING CUMULATIVENESS AS A FUNCTION OF MODEL, PROMPT AND  MEASURE ###
+    # ###############################################################################################################
 
-def ks_test(df, variable, data1, data2):
-    ks_stat, p_val = ks_2samp(data1[variable], data2[variable])
-    return ks_stat, p_val
+    # df = get_data_initial_vs_final(plotter)
 
-def compare_all_generations(prompt, measure_tag, successive = True):
-    data = []
-    p_values = {model: [] for model in plotter.models}
-    for model in plotter.models:
-        all_evolutions = np.array([plotter.all_data["evolution"][prompt][s][f"Results/{model}/{prompt}/{s}"][measure_tag] for s in plotter.stories])
+    # df = pd.DataFrame(df)
 
-        for g in range(plotter.n_generations):
-            data.append(pd.DataFrame({
-                "Value": all_evolutions[:,:, g].flatten(),
-                "Generation": g,
-                "Type": "Final",
-                "Model": model,
-                "Color": "initial"
-            }))
-    df = pd.concat(data)
+    # variables = ['model', 'prompt', 'measure']
 
-    for m in plotter.models:
-       for gen in range(1, plotter.n_generations):
-            if successive:
-                data1 = df[(df["Generation"] == gen - 1) & (df["Model"] == m)]
-            else:
-                data1 = df[(df["Generation"] == 1) & (df["Model"] == m)]
-            data2 = df[(df["Generation"] == gen) & (df["Model"] == m)]
-            ks_stat, p_val = ks_test(df, "Value", data1, data2)
-            p_values[m].append(p_val)
-    return p_values
+    # models, traces = run_bayesian_model(df, measures = ['normalized_difference'], variables = ['model', 'prompt', 'measure'])
+
+    # for i,m in enumerate(['normalized_difference']):
+    #     for v in variables:
+
+    #         fig, ax = plot_coeff_matrix(df, traces[i], name = f'Difference', param = v)
+    #         fig.savefig(f"Results/{saving_name}/cumulativeness_{v}.png")
+            
 
 
 
 
-fig, axes = plt.subplots(len(plotter.measures), len(plotter.prompts), figsize=(20, 20))
+    ####################################################################
+    ### Kolmogorov-Smirnov (KS) Test for comparing the distributions ###
+    ####################################################################
 
+    from scipy.stats import ks_2samp
 
-for i, (measure, measure_key) in enumerate(zip(plotter.measures, ["all_seeds_toxicity", "all_seeds_positivity", "all_seeds_difficulty", "all_seeds_length"])):
-    for j, prompt in enumerate(plotter.prompts):
+    def ks_test(df, variable, data1, data2):
+        ks_stat, p_val = ks_2samp(data1[variable], data2[variable])
+        return ks_stat, p_val
 
-        p_values = compare_all_generations(prompt, measure_key, successive = False)
-
+    def compare_all_generations(prompt, measure_tag, successive = True):
+        data = []
+        p_values = {model: [] for model in plotter.models}
         for model in plotter.models:
-            axes[i, j].plot(range(1, plotter.n_generations), p_values[model], label=model, color = plotter.model_colors[model])
-        
-        ## Add a area for the 0.05 significance level
-        axes[i, j].fill_between(range(1, plotter.n_generations), 0.05, 0, color='grey', alpha=0.2)
+            all_evolutions = np.array([plotter.all_data["evolution"][prompt][s][f"Results/{model}/{prompt}/{s}"][measure_tag] for s in plotter.stories])
 
-        
-        if i == 0:
-            if prompt == "inspiration":
-                axes[i, j].set_title("Take Inspiration")
-            else:
-                axes[i, j].set_title(prompt.capitalize())
-        if j == 0:
-            axes[i, j].set_ylabel(f'{measure.capitalize()}\n KS p-value')
-        if i == len(plotter.measures) - 1:
-            axes[i, j].set_xlabel("Generation")
+            for g in range(plotter.n_generations):
+                data.append(pd.DataFrame({
+                    "Value": all_evolutions[:,:, g].flatten(),
+                    "Generation": g,
+                    "Type": "Final",
+                    "Model": model,
+                    "Color": "initial"
+                }))
+        df = pd.concat(data)
 
-plt.tight_layout()
-plt.suptitle("Distribution similarities with first generation", fontweight='bold')
-fig.subplots_adjust(top=0.9)
-plt.legend()
+        for m in plotter.models:
+            for gen in range(1, plotter.n_generations):
+                if successive:
+                    data1 = df[(df["Generation"] == gen - 1) & (df["Model"] == m)]
+                else:
+                    data1 = df[(df["Generation"] == 1) & (df["Model"] == m)]
+                data2 = df[(df["Generation"] == gen) & (df["Model"] == m)]
+                ks_stat, p_val = ks_test(df, "Value", data1, data2)
+                p_values[m].append(p_val)
+        return p_values
 
-plt.savefig(f"Results/{saving_name}/KS_test_first_generation.png")
-plt.show()
+
+
+
+    fig, axes = plt.subplots(len(plotter.measures), len(plotter.prompts), figsize=(20, 20))
+
+
+    for i, (measure, measure_key) in enumerate(zip(plotter.measures, ["all_seeds_toxicity", "all_seeds_positivity", "all_seeds_difficulty", "all_seeds_length"])):
+        for j, prompt in enumerate(plotter.prompts):
+
+            p_values = compare_all_generations(prompt, measure_key, successive = False)
+
+            for model in plotter.models:
+                axes[i, j].plot(range(1, plotter.n_generations), p_values[model], label=model, color = plotter.model_colors[model])
+            
+            ## Add a area for the 0.05 significance level
+            axes[i, j].fill_between(range(1, plotter.n_generations), 0.05, 0, color='grey', alpha=0.2)
+
+            
+            if i == 0:
+                if prompt == "inspiration":
+                    axes[i, j].set_title("Take Inspiration")
+                else:
+                    axes[i, j].set_title(prompt.capitalize())
+            if j == 0:
+                axes[i, j].set_ylabel(f'{measure.capitalize()}\n KS p-value')
+            if i == len(plotter.measures) - 1:
+                axes[i, j].set_xlabel("Generation")
+
+    plt.tight_layout()
+    plt.suptitle("Distribution similarities with first generation", fontweight='bold')
+    fig.subplots_adjust(top=0.9)
+    plt.legend()
+
+    plt.savefig(f"../Results/{saving_name}/KS_test_first_generation.png")
+    plt.show()
+
+
+if __name__ == "__main__":
+    models = sys.argv[1:]
+    main(models)

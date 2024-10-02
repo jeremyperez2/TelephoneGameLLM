@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pickle
-
+import sys
 
 # os.chdir("..")
 
@@ -192,250 +192,281 @@ def get_all_similarities(all_data, plotter):
 ############################
 ####### LOAD DATA ##########
 ############################
+def main(models):
+    import matplotlib.pyplot as plt
+    import matplotlib.gridspec as gridspec
+    import numpy as np
+    import seaborn as sns
+    import pickle
+    from plotting import Plotter
+    import pymc as pm
+    import arviz as az
+    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+    from pdf2image import convert_from_path
+    import datetime
+    import pandas as pd
+    pd.DataFrame.iteritems = pd.DataFrame.items
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+    import pickle
+    import sys
 
 
-print("Loading data ...")
-
-
-
-saving_name = "processed_data"
-
-
-with open("../Results/data-for-plotting/all_data.pkl", "rb") as file:
-    all_data = pickle.load(file)
-
-
-plotter = Plotter(all_data)
-
-all_evolutions = get_all_evolutions(all_data, plotter)
-all_initial_cumuls, all_final_cumuls, all_after_10_cumuls = get_all_initial_vs_final(all_data, plotter)
-all_attr_positions, all_attr_strengths, all_attr_positions_10, all_attr_strengths_10 = get_all_attr_positions_strengths(all_data, plotter)
-# initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
-# change_per_generation = get_change_per_generation(all_data, plotter)
-# directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
-os.makedirs(f"Results/{saving_name}", exist_ok=True)    
-
-
-with open(f"Results/{saving_name}/all_evolutions.pkl", "wb") as file:
-    pickle.dump(all_evolutions, file)
-
-with open(f"Results/{saving_name}/all_initial_cumuls.pkl", "wb") as file:
-    pickle.dump(all_initial_cumuls, file)
-with open(f"Results/{saving_name}/all_final_cumuls.pkl", "wb") as file:
-    pickle.dump(all_final_cumuls, file)
-with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "wb") as file:
-    pickle.dump(all_after_10_cumuls, file)
-
-with open(f"Results/{saving_name}/all_attr_positions.pkl", "wb") as file:
-    pickle.dump(all_attr_positions, file)
-with open(f"Results/{saving_name}/all_attr_strengths.pkl", "wb") as file:
-    pickle.dump(all_attr_strengths, file)
-with open(f"Results/{saving_name}/all_attr_positions_10.pkl", "wb") as file:
-    pickle.dump(all_attr_positions_10, file)
-with open(f"Results/{saving_name}/all_attr_strengths_10.pkl", "wb") as file:
-    pickle.dump(all_attr_strengths_10, file)
-
-# with open(f"Results/{saving_name}/initial_sim.pkl", "wb") as file:
-#     pickle.dump(initial_sim, file)
-# with open(f"Results/{saving_name}/final_sim.pkl", "wb") as file:
-#     pickle.dump(final_sim, file)
-# with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "wb") as file:
-#     pickle.dump(all_after_10_cumuls, file)
-# with open(f"Results/{saving_name}/change_per_generation.pkl", "wb") as file:
-#     pickle.dump(change_per_generation, file)
-
-# with open(f"Results/{saving_name}/directional_change_per_generation.pkl", "wb") as file:
-#     pickle.dump(directional_change_per_generation, file)
+    print("Loading data ...")
 
 
 
-plotter.load_results(saving_name)
+    saving_name = "processed_data"
+
+
+    with open("../Results/data-for-plotting/all_data.pkl", "rb") as file:
+        all_data = pickle.load(file)
+
+
+    plotter = Plotter(all_data, models = models)
+
+    all_evolutions = get_all_evolutions(all_data, plotter)
+    all_initial_cumuls, all_final_cumuls, all_after_10_cumuls = get_all_initial_vs_final(all_data, plotter)
+    all_attr_positions, all_attr_strengths, all_attr_positions_10, all_attr_strengths_10 = get_all_attr_positions_strengths(all_data, plotter)
+    # initial_sim, final_sim = get_initial_vs_final_sim(all_data, plotter)
+    # change_per_generation = get_change_per_generation(all_data, plotter)
+    # directional_change_per_generation = get_directional_change_per_generation(all_data, plotter)
+    os.makedirs(f"Results/{saving_name}", exist_ok=True)    
+
+
+    with open(f"Results/{saving_name}/all_evolutions.pkl", "wb") as file:
+        pickle.dump(all_evolutions, file)
+
+    with open(f"Results/{saving_name}/all_initial_cumuls.pkl", "wb") as file:
+        pickle.dump(all_initial_cumuls, file)
+    with open(f"Results/{saving_name}/all_final_cumuls.pkl", "wb") as file:
+        pickle.dump(all_final_cumuls, file)
+    with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "wb") as file:
+        pickle.dump(all_after_10_cumuls, file)
+
+    with open(f"Results/{saving_name}/all_attr_positions.pkl", "wb") as file:
+        pickle.dump(all_attr_positions, file)
+    with open(f"Results/{saving_name}/all_attr_strengths.pkl", "wb") as file:
+        pickle.dump(all_attr_strengths, file)
+    with open(f"Results/{saving_name}/all_attr_positions_10.pkl", "wb") as file:
+        pickle.dump(all_attr_positions_10, file)
+    with open(f"Results/{saving_name}/all_attr_strengths_10.pkl", "wb") as file:
+        pickle.dump(all_attr_strengths_10, file)
+
+    # with open(f"Results/{saving_name}/initial_sim.pkl", "wb") as file:
+    #     pickle.dump(initial_sim, file)
+    # with open(f"Results/{saving_name}/final_sim.pkl", "wb") as file:
+    #     pickle.dump(final_sim, file)
+    # with open(f"Results/{saving_name}/all_after_10_cumuls.pkl", "wb") as file:
+    #     pickle.dump(all_after_10_cumuls, file)
+    # with open(f"Results/{saving_name}/change_per_generation.pkl", "wb") as file:
+    #     pickle.dump(change_per_generation, file)
+
+    # with open(f"Results/{saving_name}/directional_change_per_generation.pkl", "wb") as file:
+    #     pickle.dump(directional_change_per_generation, file)
 
 
 
-date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-saving_name = "figures_" + date
-
-
-os.makedirs(f"Figures/{saving_name}", exist_ok=True)
-
-print("Data loaded successfully")
-print("Figures will be saved in Figures/" + saving_name)
+    plotter.load_results(saving_name)
 
 
 
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-##########################################################
-### FIGURES EVOLUTION OF TEXT PROPERTIES - ALL RESULTS ###
-##########################################################
-
-print("Plotting evolution of text properties ...")
-
-for s in plotter.stories:
-    plotter.plot_evolution(specific_story=s, examples = True)
-    plt.savefig(f"Figures/{saving_name}/evolution_{s}.pdf", bbox_inches="tight")
+    saving_name = "figures_" + date
 
 
-##########################################################
-### FIGURES ATTRACTORS  BARPLOTS + LINEAR REGRESSIONS ####
-##########################################################
+    os.makedirs(f"Figures/{saving_name}", exist_ok=True)
 
-print("Plotting attractors ...")
-
-
-fig, axs = plt.subplots(len(plotter.measures), len(plotter.prompts)+2, figsize=(6*(len(plotter.prompts)+2), 4*(len(plotter.measures))))
-for i, measure in enumerate(plotter.measures):
-    this_fig, these_axs = plotter.plot_cumulativeness_ivsf(measure, fig=fig, axs=axs[i], 
-                                            legend_i=0 if i==3 else None)
-    if i !=0:
-        for ax in these_axs:
-            ax.set_title(None)
-_, _ = plotter.plot_attr_var("position", ylim=None, fig=fig, axs=axs[:,3], legend_i=None, with_suptitle=False)
-_, _ = plotter.plot_attr_var("strength", ylim=None, fig=fig, axs=axs[:,4], legend_i=None, with_suptitle=False)
-
-plt.savefig(f"Figures/{saving_name}/attractors.pdf", bbox_inches="tight")
+    print("Data loaded successfully")
+    print("Figures will be saved in Figures/" + saving_name)
 
 
 
 
-##########################################
-### FIGURES ATTRACTORS BARPLOTS ONLY #####
-##########################################
+    ##########################################################
+    ### FIGURES EVOLUTION OF TEXT PROPERTIES - ALL RESULTS ###
+    ##########################################################
 
-print("Plotting attractors barplots ...")
+    print("Plotting evolution of text properties ...")
 
-fig, axs = plt.subplots(2, len(plotter.measures), figsize=(6*(len(plotter.measures)), 12))
-
-
-
-_, _ = plotter.plot_attr_var("position", ylim=None, fig=fig, axs=axs[0,:], legend_i=0, with_suptitle=True, legend_pos=(0.8, 0.8), labelpad = 5)
-_, _ = plotter.plot_attr_var("strength", ylim=None, fig=fig, axs=axs[1,:], legend_i=None, with_suptitle=False, labelpad = 40)
-plt.savefig(f"Figures/{saving_name}/attractors_simple.pdf", bbox_inches="tight")
+    for s in plotter.stories:
+        plotter.plot_evolution(specific_story=s, examples = True)
+        plt.savefig(f"Figures/{saving_name}/evolution_{s}.pdf", bbox_inches="tight")
 
 
+    ##########################################################
+    ### FIGURES ATTRACTORS  BARPLOTS + LINEAR REGRESSIONS ####
+    ##########################################################
 
-##########################################
-### JOYPLOTS DISTRIBUTION EVOLUTIONS #####
-##########################################
+    print("Plotting attractors ...")
 
-print("Plotting joyplots ...")
-print("This may take a few minutes ")
 
-os.makedirs(f"Figures/{saving_name}/distributions", exist_ok=True)
+    fig, axs = plt.subplots(len(plotter.measures), len(plotter.prompts)+2, figsize=(6*(len(plotter.prompts)+2), 4*(len(plotter.measures))))
+    for i, measure in enumerate(plotter.measures):
+        this_fig, these_axs = plotter.plot_cumulativeness_ivsf(measure, fig=fig, axs=axs[i], 
+                                                legend_i=0 if i==3 else None)
+        if i !=0:
+            for ax in these_axs:
+                ax.set_title(None)
+    _, _ = plotter.plot_attr_var("position", ylim=None, fig=fig, axs=axs[:,3], legend_i=None, with_suptitle=False)
+    _, _ = plotter.plot_attr_var("strength", ylim=None, fig=fig, axs=axs[:,4], legend_i=None, with_suptitle=False)
 
-for measure, measure_key in zip(plotter.measures, ["all_seeds_toxicity", "all_seeds_positivity", "all_seeds_difficulty", "all_seeds_length"]):
-    for i, prompt in enumerate(plotter.prompts):
-        for j, model in enumerate(plotter.models):
-            plotter.plot_metric_distributions(measure, measure_key, prompt, model)
+    plt.savefig(f"Figures/{saving_name}/attractors.pdf", bbox_inches="tight")
 
-            plt.savefig(f"Figures/{saving_name}/distributions/metric_distributions_{measure}_{prompt}_{model}.png", bbox_inches="tight")
 
-import os
-from PIL import Image
-import matplotlib.pyplot as plt
 
-def plot_images_from_folder(folder_path, measure): 
-    # Get list of image files in the folder
-    image_files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f)) and measure in f and 'metric_distributions' in f and f.endswith('.png')]
-    row_dict = {prompt: i for i, prompt in enumerate(plotter.prompts)}
-    
-    col_dict = {model: i for i, model in enumerate(plotter.models)}
-    # Create a grid of subplots
-    fig, axes = plt.subplots(len(plotter.prompts), len(plotter.models), figsize=(len(plotter.models)*10, len(plotter.prompts)*30))
-    axes = axes.flatten()  # Flatten the 2D grid to 1D array for easier indexing
-    
-    # Loop through each image file and corresponding subplot
-    for image_file in image_files:
-        # Get the prompt and model from the image file name
-        prompt = image_file.split('_')[3]
-        model = image_file.split('_')[4][:-4]
+
+    ##########################################
+    ### FIGURES ATTRACTORS BARPLOTS ONLY #####
+    ##########################################
+
+    print("Plotting attractors barplots ...")
+
+    fig, axs = plt.subplots(2, len(plotter.measures), figsize=(6*(len(plotter.measures)), 12))
+
+
+
+    _, _ = plotter.plot_attr_var("position", ylim=None, fig=fig, axs=axs[0,:], legend_i=0, with_suptitle=True, legend_pos=(0.8, 0.8), labelpad = 5)
+    _, _ = plotter.plot_attr_var("strength", ylim=None, fig=fig, axs=axs[1,:], legend_i=None, with_suptitle=False, labelpad = 40)
+    plt.savefig(f"Figures/{saving_name}/attractors_simple.pdf", bbox_inches="tight")
+
+
+
+    ##########################################
+    ### JOYPLOTS DISTRIBUTION EVOLUTIONS #####
+    ##########################################
+
+    print("Plotting joyplots ...")
+    print("This may take a few minutes ")
+
+    os.makedirs(f"Figures/{saving_name}/distributions", exist_ok=True)
+
+    for measure, measure_key in zip(plotter.measures, ["all_seeds_toxicity", "all_seeds_positivity", "all_seeds_difficulty", "all_seeds_length"]):
+        for i, prompt in enumerate(plotter.prompts):
+            for j, model in enumerate(plotter.models):
+                plotter.plot_metric_distributions(measure, measure_key, prompt, model)
+
+                plt.savefig(f"Figures/{saving_name}/distributions/metric_distributions_{measure}_{prompt}_{model}.png", bbox_inches="tight")
+
+    import os
+    from PIL import Image
+    import matplotlib.pyplot as plt
+
+    def plot_images_from_folder(folder_path, measure): 
+        # Get list of image files in the folder
+        image_files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f)) and measure in f and 'metric_distributions' in f and f.endswith('.png')]
+        row_dict = {prompt: i for i, prompt in enumerate(plotter.prompts)}
         
-        # Get the row and column index of the subplot
-        row = row_dict[prompt]
-        col = col_dict[model]
+        col_dict = {model: i for i, model in enumerate(plotter.models)}
+        # Create a grid of subplots
+        fig, axes = plt.subplots(len(plotter.prompts), len(plotter.models), figsize=(len(plotter.models)*10, len(plotter.prompts)*30))
+        axes = axes.flatten()  # Flatten the 2D grid to 1D array for easier indexing
+        
+        # Loop through each image file and corresponding subplot
+        for image_file in image_files:
+            # Get the prompt and model from the image file name
+            prompt = image_file.split('_')[3]
+            model = image_file.split('_')[4][:-4]
+            
+            # Get the row and column index of the subplot
+            row = row_dict[prompt]
+            col = col_dict[model]
 
-        image_path = os.path.join(folder_path, image_file)
-        # Load the image file
-        if image_file.lower().endswith('.pdf'):
-            # Convert PDF to images
-            images = convert_from_path(image_path)
-            # Display the first page of the PDF
-            image = images[0]
+            image_path = os.path.join(folder_path, image_file)
+            # Load the image file
+            if image_file.lower().endswith('.pdf'):
+                # Convert PDF to images
+                images = convert_from_path(image_path)
+                # Display the first page of the PDF
+                image = images[0]
+            else:
+                image = Image.open(image_path)
+
+            # Display the image on the corresponding subplot
+            axes[row * len(plotter.models) + col].imshow(image)
+            ax = axes[row * len(plotter.models) + col]
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_xlabel('')
+            ax.set_ylabel('')
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+
+            if col == 0:
+                if prompt == 'inspiration':
+                    prompt = 'Take inspiration'
+                ax.set_ylabel(f'{prompt.capitalize()}\n\nGenerations', fontsize=140)
+            
+            # if row == 0:
+            #     # ax.set_title(model, fontsize=150, rotation=25)
+
+            #     #alternatively set model in bold
+            #     ax.set_title(f'{model}', fontsize=100, fontweight='bold', color=plotter.model_colors[model], rotation=25)
+
+            
+        
+        # Hide any remaining subplots if there are more subplots than images
+        for ax in axes[len(image_files):]:
+            ax.axis('off')
+            
+
+        plt.suptitle(f"{measure.capitalize()}", fontsize=200)
+        plt.tight_layout()
+
+        fig.subplots_adjust(top=0.85)
+        
+        
+        
+
+    for measure in plotter.measures:
+        folder_path = "Figures/" + saving_name + '/distributions'
+        plot_images_from_folder(folder_path, measure)
+        plt.savefig(f"Figures/{saving_name}/metric_distributions_{measure}.pdf", bbox_inches="tight")
+
+
+
+
+    ######################################################################
+    ### FIGURES FOR CONFIRMING THEORETICAL ESTIMATIONS OF ATTRACTORS #####
+    ######################################################################
+
+    print("Plotting verification of attractors ...")
+
+
+
+
+    fig, axs = plt.subplots(len(plotter.measures), len(plotter.prompts)+2, figsize=(6*(len(plotter.prompts)+2), 4*(len(plotter.measures))))
+    for i, measure in enumerate(plotter.measures):
+        this_fig, these_axs = plotter.plot_cumulativeness_ivsf(measure, fig=fig, axs=axs[i], 
+                                                legend_i=0 if i==0 else None, after10=True)
+        if i !=0:
+            for ax in these_axs:
+                ax.set_title(None)
+    _, _ = plotter.plot_attr_var("position", ylim=None, fig=fig, axs=axs[:,3], legend_i=None, with_suptitle=False, after10=True)
+    _, _ = plotter.plot_attr_var("strength", ylim=None, fig=fig, axs=axs[:,4], legend_i=None, with_suptitle=False, after10=True)
+
+    plt.savefig(f"Figures/{saving_name}/attractors_predict.pdf", bbox_inches="tight")
+
+
+    for i, measure in enumerate(plotter.measures):
+        
+        if i == 0:
+            plotter.plot_initial_final_distribution_(measure, legend_i=0, with_suptitle=False)
         else:
-            image = Image.open(image_path)
-
-        # Display the image on the corresponding subplot
-        axes[row * len(plotter.models) + col].imshow(image)
-        ax = axes[row * len(plotter.models) + col]
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_xlabel('')
-        ax.set_ylabel('')
-        ax.set_xticklabels([])
-        ax.set_yticklabels([])
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-
-        if col == 0:
-            if prompt == 'inspiration':
-                prompt = 'Take inspiration'
-            ax.set_ylabel(f'{prompt.capitalize()}\n\nGenerations', fontsize=140)
-        
-        if row == 0:
-            ax.set_title(model, fontsize=70, rotation=25)
-
-        
-    
-    # Hide any remaining subplots if there are more subplots than images
-    for ax in axes[len(image_files):]:
-        ax.axis('off')
-        
-
-    plt.suptitle(f"{measure.capitalize()}", fontsize=200)
-    plt.tight_layout()
-
-    fig.subplots_adjust(top=0.85)
-    
-    
-    
-
-for measure in plotter.measures:
-    folder_path = "Figures/" + saving_name + '/distributions'
-    plot_images_from_folder(folder_path, measure)
-    plt.savefig(f"Figures/{saving_name}/metric_distributions_{measure}.pdf", bbox_inches="tight")
+            plotter.plot_initial_final_distribution_(measure, legend_i=None, with_suptitle=False)
+        plt.savefig(f"Figures/{saving_name}/initial_final_distribution_{measure}.pdf", bbox_inches="tight")
 
 
 
+if __name__ == "__main__":
+    ## get args
 
-######################################################################
-### FIGURES FOR CONFIRMING THEORETICAL ESTIMATIONS OF ATTRACTORS #####
-######################################################################
+    models = sys.argv[1:]
 
-print("Plotting verification of attractors ...")
-
-
-
-
-fig, axs = plt.subplots(len(plotter.measures), len(plotter.prompts)+2, figsize=(6*(len(plotter.prompts)+2), 4*(len(plotter.measures))))
-for i, measure in enumerate(plotter.measures):
-    this_fig, these_axs = plotter.plot_cumulativeness_ivsf(measure, fig=fig, axs=axs[i], 
-                                            legend_i=0 if i==0 else None, after10=True)
-    if i !=0:
-        for ax in these_axs:
-            ax.set_title(None)
-_, _ = plotter.plot_attr_var("position", ylim=None, fig=fig, axs=axs[:,3], legend_i=None, with_suptitle=False, after10=True)
-_, _ = plotter.plot_attr_var("strength", ylim=None, fig=fig, axs=axs[:,4], legend_i=None, with_suptitle=False, after10=True)
-
-plt.savefig(f"Figures/{saving_name}/attractors_predict.pdf", bbox_inches="tight")
-
-
-for i, measure in enumerate(plotter.measures):
-    
-    if i == 0:
-        plotter.plot_initial_final_distribution_(measure, legend_i=0, with_suptitle=False)
-    else:
-        plotter.plot_initial_final_distribution_(measure, legend_i=None, with_suptitle=False)
-    plt.savefig(f"Figures/{saving_name}/initial_final_distribution_{measure}.pdf", bbox_inches="tight")
+    main(models)

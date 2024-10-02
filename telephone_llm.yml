@@ -193,4 +193,3 @@ dependencies:
       - xarray-einstats==0.7.0
       - xxhash==3.4.1
       - yarl==1.9.4
-prefix: /Users/jperez/miniconda3/envs/LLM-Culture
